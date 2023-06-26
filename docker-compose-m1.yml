@@ -19,15 +19,15 @@ services:
   pam-cms:
     image: 3dsinteractive/pam.nano.base.cms:18.0.1
     pull_policy: always
-    ports:
-      - 8000:8000
+    # ports:
+    #   - 8000:8000
     depends_on:
       - pam-api
   pam-api:
     image: 3dsinteractive/pam.nano.base.api:18.0.1
     pull_policy: always
-    ports:
-      - 8080:8080
+    # ports:
+    #   - 8080:8080
     depends_on:
       - elasticsearch
       - kafka
