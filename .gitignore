@@ -1,1 +1,8 @@
-dockers
+dockers/nginx/logs
+dockers/certs
+dockers/kibana
+dockers/kafka
+dockers/zookeeper
+dockers/elasticsearch
+dockers/redis
+dockers/zookeeper

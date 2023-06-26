@@ -1,19 +1,35 @@
 version: "3"
 services:
+  nginx:
+    image: 3dsinteractive/nginx:1.12
+    pull_policy: always
+    restart: always
+    depends_on:
+      - pam-api
+      - pam-cms
+    ports:
+      - 80:8080
+      - 443:8443
+    sysctls:
+      - net.core.somaxconn=65535
+    volumes:
+      - ./dockers/nginx/logs:/opt/bitnami/nginx/logs
+      - ./dockers/nginx/app.conf:/opt/bitnami/nginx/conf/server_blocks/app.conf
+      # - ./dockers/certs:/bitnami/nginx/conf/bitnami/certs
   pam-cms:
     image: 3dsinteractive/pam.nano.base.cms:18.0.1
-    hostname: pam-cms
     pull_policy: always
-    ports:
-      - 8000:8000
+    restart: always
+    # ports:
+    #   - 8000:8000
     depends_on:
       - pam-api
   pam-api:
     image: 3dsinteractive/pam.nano.base.api:18.0.1
-    hostname: pam-api
     pull_policy: always
-    ports:
-      - 8080:8080
+    restart: always
+    # ports:
+    #   - 8080:8080
     depends_on:
       - elasticsearch
       - kafka
@@ -126,8 +142,8 @@ services:
       - PAM_EVALUATE_CONTACT_TRIGGERS_PARTITIONS=10
   elasticsearch:
     image: 3dsinteractive/elasticsearch:6.8.23-custom
-    hostname: elasticsearch
     pull_policy: always
+    restart: always
     environment:
       - ELASTICSEARCH_CLUSTER_NAME=elasticsearch
       - ELASTICSEARCH_CLUSTER_HOSTS=elasticsearch
@@ -140,10 +156,10 @@ services:
       - ELASTICSEARCH_CUSTOM_MEMORY_LOCK=true
       - ELASTICSEARCH_CUSTOM_BULK_QUEUE_SIZE=50
       - ELASTICSEARCH_CUSTOM_INDEX_QUEUE_SIZE=100
-    ports:
-      - 9200:9200
-    # volumes:
-      # - ./dockers/elasticsearch/data:/bitnami/elasticsearch/data
+    # ports:
+    #   - 9200:9200
+    volumes:
+      - ./dockers/elasticsearch/data:/bitnami/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -157,35 +173,42 @@ services:
   zookeeper:
     image: 3dsinteractive/zookeeper:3.0
     pull_policy: always
+    restart: always
     ports:
       - 2181:2181
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - ./dockers/zookeeper/data:/bitnami/zookeeper
   kafka:
     image: 3dsinteractive/kafka:2.0-custom
     pull_policy: always
-    ports:
-      - 9094:9094
+    restart: always
+    # ports:
+    #   - 9094:9094
     depends_on:
       - zookeeper
     environment:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9092,OUTSIDE://127.0.0.1:9094
+      - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9092,OUTSIDE://kafka:9094
       - KAFKA_LISTENERS=INSIDE://:9092,OUTSIDE://:9094
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
       - KAFKA_HEAP_OPTS=-Xmx1500m -Xms1500m
-    # volumes:
+    volumes:
       # - ./dockers/kafka/config:/opt/bitnami/kafka/conf
-      # - ./dockers/kafka/data:/bitnami/kafka/data
+      - ./dockers/kafka/data:/bitnami/kafka/data
   redis:
     image: 3dsinteractive/redis:4.0
     pull_policy: always
+    restart: always
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - 6379:6379
+    volumes:
+      - ./dockers/redis/data:/bitnami/redis/data
+    # ports:
+    #   - 6379:6379
 networks:
   default:
     name: network-default
