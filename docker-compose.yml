@@ -1,0 +1,68 @@
+version: "3"
+services:
+  pamnano:
+    image: 3dsinteractive/elasticsearch:pam.nano.base.api:18.0.1
+    hostname: pamnano
+    ports:
+      - 8080:8080
+  elasticsearch:
+    image: 3dsinteractive/elasticsearch:6.8-custom
+    hostname: elasticsearch
+    environment:
+      - ELASTICSEARCH_CLUSTER_NAME=elasticsearch
+      - ELASTICSEARCH_CLUSTER_HOSTS=elasticsearch
+      - ELASTICSEARCH_NODE_NAME=elasticsearch
+      - ELASTICSEARCH_NODE_TYPE=master
+      - ELASTICSEARCH_PORT_NUMBER=9200
+      - ELASTICSEARCH_HEAP_SIZE=1g
+      - ELASTICSEARCH_CUSTOM_MAX_CLAUSE_COUNT=10000
+      - ELASTICSEARCH_CUSTOM_QUERY_CACHE_SIZE=30%
+      - ELASTICSEARCH_CUSTOM_MEMORY_LOCK=true
+      - ELASTICSEARCH_CUSTOM_BULK_QUEUE_SIZE=50
+      - ELASTICSEARCH_CUSTOM_INDEX_QUEUE_SIZE=100
+      - ELASTICSEARCH_PLUGINS=analysis-icu
+    ports:
+      - 9200:9200
+    volumes:
+      - ./dockers/elasticsearch/data:/bitnami/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  kibana:
+    image: 3dsinteractive/kibana:6.8
+    links: 
+      - elasticsearch
+    ports:
+      - 5601:5601
+  zookeeper:
+    image: 3dsinteractive/zookeeper:3.0
+    ports:
+      - 2181:2181
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+  kafka:
+    image: 3dsinteractive/kafka:2.0-custom
+    ports:
+      - 9094:9094
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=INSIDE://:9092,OUTSIDE://127.0.0.1:9094
+      - KAFKA_LISTENERS=INSIDE://:9092,OUTSIDE://:9094
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INSIDE
+      - KAFKA_HEAP_OPTS=-Xmx1500m -Xms1500m
+    volumes:
+      - ./dockers/kafka/config:/opt/bitnami/kafka/conf
+      - ./dockers/kafka/data:/bitnami/kafka/data
+  redis:
+    image: 3dsinteractive/redis:4.0
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379
+networks:
+  default:
+    external:
+      name: network-default
