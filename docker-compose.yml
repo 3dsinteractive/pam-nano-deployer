@@ -1,12 +1,12 @@
 version: "3"
 services:
   pam-cms:
-    image: 3dsinteractive/elasticsearch:pam.nano.base.cms:18.0.1
+    image: 3dsinteractive/pam.nano.base.cms:18.0.1
     hostname: pam-cms
     port:
       - 8000:8000
   pam-api:
-    image: 3dsinteractive/elasticsearch:pam.nano.base.api:18.0.1
+    image: 3dsinteractive/pam.nano.base.api:18.0.1
     hostname: pam-api
     ports:
       - 8080:8080
