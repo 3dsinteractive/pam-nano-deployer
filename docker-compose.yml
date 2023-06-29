@@ -1,7 +1,7 @@
 version: "3"
 services:
   nginx:
-    image: 3dsinteractive/nginx:1.12
+    image: 3dsinteractive/nginx:1.19
     pull_policy: always
     restart: always
     depends_on:
