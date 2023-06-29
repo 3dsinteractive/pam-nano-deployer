@@ -48,7 +48,7 @@ sysctl --system
 sysctl -p
 
 #create 1001 user
-useradd -u 1001 --no-create-home 1001
+useradd -u 1001 --badname --no-create-home 1001
 # sudo usermod -a -G docker ubuntu
 # sudo usermod -a -G docker 1001
 # sudo usermod -a -G 1001 ubuntu
